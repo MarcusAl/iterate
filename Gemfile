@@ -36,6 +36,7 @@ gem 'kamal', require: false
 
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem 'aasm'
+gem 'faker'
 gem 'pagy'
 gem 'thruster', require: false
 
@@ -57,7 +58,6 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem 'annotaterb'
-  gem 'faker'
   gem 'web-console'
 end
 
