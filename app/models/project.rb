@@ -16,6 +16,7 @@
 #
 class Project < ApplicationRecord
   include AASM
+  include PgSearch::Model
 
   MAX_NAME_LENGTH = 255
   MAX_DESCRIPTION_LENGTH = 1000
@@ -26,6 +27,15 @@ class Project < ApplicationRecord
   validates :name, presence: true, length: { maximum: MAX_NAME_LENGTH }
   validates :description, presence: true, length: { maximum: MAX_DESCRIPTION_LENGTH }
   validates :priority, inclusion: { in: MIN_PRIORITY..MAX_PRIORITY }
+
+  pg_search_scope :keyword,
+                  against: %i[name description],
+                  using: {
+                    tsearch: {
+                      prefix: true,
+                      any_word: true
+                    }
+                  }
 
   aasm column: :status do
     state :draft, initial: true
