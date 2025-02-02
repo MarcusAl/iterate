@@ -1,4 +1,4 @@
-require "active_support/core_ext/integer/time"
+require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -6,8 +6,22 @@ Rails.application.configure do
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
+  onfig.public_file_server.enabled = true
+
+  # Use a real queuing backend for Active Job
+  config.active_job.queue_adapter = :async
+
   # Eager load code on boot for better performance and memory savings (ignored by Rake tasks).
   config.eager_load = true
+
+  # Store uploaded files on the local file system (see config/storage.yml for options)
+  config.active_storage.service = :local
+
+  config.public_file_server.enabled = true
+
+  config.assets.js_compressor = :terser
+
+  config.assets.css_compressor = nil
 
   # Full error reports are disabled.
   config.consider_all_requests_local = false
@@ -16,7 +30,7 @@ Rails.application.configure do
   config.action_controller.perform_caching = true
 
   # Cache assets for far-future expiry since they are all digest stamped.
-  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
+  config.public_file_server.headers = { 'cache-control' => "public, max-age=#{1.year.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
@@ -34,14 +48,14 @@ Rails.application.configure do
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
-  config.log_tags = [ :request_id ]
-  config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.log_level = :info
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!)
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
 
   # Prevent health checks from clogging up the logs.
-  config.silence_healthcheck_path = "/up"
+  config.silence_healthcheck_path = '/up'
 
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
@@ -58,7 +72,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: 'example.com' }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
@@ -77,7 +91,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Only use :id for inspections in production.
-  config.active_record.attributes_for_inspect = [ :id ]
+  config.active_record.attributes_for_inspect = [:id]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
