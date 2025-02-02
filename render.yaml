@@ -18,7 +18,11 @@ services:
           property: connectionString
       - key: RAILS_MASTER_KEY
         sync: false
+      - key: RAILS_ENV
+        value: development
       - key: RAILS_LOG_TO_STDOUT
+        value: true
+      - key: RAILS_SERVE_STATIC_FILES
         value: true
       - key: WEB_CONCURRENCY
         value: 2
