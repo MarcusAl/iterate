@@ -55,3 +55,6 @@ yarn-debug.log*
 .vscode/
 *.swp
 *.swo 
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

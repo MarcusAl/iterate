@@ -16,7 +16,9 @@ module Authenticatable
   end
 
   def ensure_user
-    user = User.create!
+    user = User.create!(
+      admin: false
+    )
     cookies.signed[:session_token] = {
       value: user.session_token,
       expires: 1.year.from_now,
@@ -27,8 +29,7 @@ module Authenticatable
   end
 
   def set_current_user
-    ensure_user unless @current_user.present?
-
-    Current.user = @current_user
+    ensure_user unless current_user.present?
+    Current.user = current_user
   end
 end

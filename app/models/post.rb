@@ -24,6 +24,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Post < ApplicationRecord
+  include Sanitizable
+
   MAX_COMMENT_LENGTH = 2000
   MAX_TITLE_LENGTH = 255
   MAX_TAGS = 3

@@ -24,6 +24,7 @@ class Project < ApplicationRecord
   MAX_PRIORITY = 5
 
   has_many :state_transitions, as: :trackable, dependent: :destroy
+  has_many :posts, dependent: :destroy
   validates :name, presence: true, length: { maximum: MAX_NAME_LENGTH }
   validates :description, presence: true, length: { maximum: MAX_DESCRIPTION_LENGTH }
   validates :priority, inclusion: { in: MIN_PRIORITY..MAX_PRIORITY }
