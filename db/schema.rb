@@ -10,10 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_02_150131) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_02_153906) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "posts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "comment", null: false
+    t.string "title", limit: 255
+    t.uuid "user_id", null: false
+    t.uuid "project_id", null: false
+    t.string "tags", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_posts_on_created_at"
+    t.index ["project_id"], name: "index_posts_on_project_id"
+    t.index ["tags"], name: "index_posts_on_tags", using: :gin
+    t.index ["user_id"], name: "index_posts_on_user_id"
+  end
 
   create_table "projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
@@ -45,5 +59,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_02_150131) do
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
   end
 
+  add_foreign_key "posts", "projects"
+  add_foreign_key "posts", "users"
   add_foreign_key "state_transitions", "users"
 end

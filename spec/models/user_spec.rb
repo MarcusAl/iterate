@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: users
@@ -14,45 +16,41 @@
 #
 require 'rails_helper'
 
-RSpec.describe User, type: :model do
-  describe 'session token' do
-    it 'assigns a session token before validation' do
-      user = build(:user)
-      user.valid?
-      expect(user.session_token).to be_present
-    end
+RSpec.describe User do
+  describe 'session token generation' do
+    subject(:user) { build(:user, session_token: nil) }
 
-    it 'does not change the session token if one already exists' do
-      user = build(:user)
-      user.valid?
-      original_token = user.session_token
-      user.valid?
-      expect(user.session_token).to eq(original_token)
-    end
-
-    it 'generates unique session tokens' do
-      tokens = Array.new(5) do
-        user = build(:user)
-        user.valid?
-        user.session_token
+    context 'when validating a new user' do
+      it 'assigns a session token' do
+        expect { user.valid? }.to change(user, :session_token).from(nil).to(be_present)
       end
-      expect(tokens.uniq).to eq(tokens)
+    end
+
+    context 'when session token already exists' do
+      before { user.valid? }
+
+      it 'preserves the existing token' do
+        original_token = user.session_token
+        expect { user.valid? }.not_to change(user, :session_token).from(original_token)
+      end
+    end
+
+    context 'when generating multiple tokens' do
+      it 'ensures uniqueness' do
+        tokens = Array.new(5) do
+          create(:user).session_token
+        end
+
+        expect(tokens.uniq.count).to eq(5)
+      end
     end
   end
 
-  describe 'validations' do
-    it 'builds a user with a session token if not provided' do
-      user = build(:user)
-      user.session_token = nil
-      user.valid?
-      expect(user.session_token).to be_present
-    end
-  end
+  describe 'defaults' do
+    subject(:user) { build(:user) }
 
-  describe 'admin flag' do
-    it 'defaults to false' do
-      user = build(:user)
-      expect(user.admin).to be false
+    it 'sets admin flag to false' do
+      expect(user).not_to be_admin
     end
   end
 end

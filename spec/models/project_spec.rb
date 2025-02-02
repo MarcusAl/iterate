@@ -1,187 +1,170 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
-# Table name: projects
+# Table name: posts
 #
-#  id          :uuid             not null, primary key
-#  description :text
-#  name        :string           not null
-#  priority    :integer          default(0), not null
-#  status      :string           not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :uuid             not null, primary key
+#  comment    :text             not null
+#  tags       :string           default([]), is an Array
+#  title      :string(255)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  project_id :uuid             not null
+#  user_id    :uuid             not null
 #
 # Indexes
 #
-#  index_projects_on_status  (status)
+#  index_posts_on_created_at  (created_at)
+#  index_posts_on_project_id  (project_id)
+#  index_posts_on_tags        (tags) USING gin
+#  index_posts_on_user_id     (user_id)
 #
+# Foreign Keys
+#
+#  fk_rails_...  (project_id => projects.id)
+#  fk_rails_...  (user_id => users.id)
+#
+
 require 'rails_helper'
 
-RSpec.describe Project, type: :model do
-  let(:user) { create(:user) }
+RSpec.describe Post do
+  describe 'associations' do
+    let(:post) { create(:post) }
 
-  before do
-    allow(Current).to receive(:user).and_return(user)
+    it 'belongs to a user' do
+      expect(post.user).to be_present
+    end
+
+    it 'belongs to a project' do
+      expect(post.project).to be_present
+    end
   end
 
   describe 'validations' do
-    it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:description) }
-    it { should validate_length_of(:name).is_at_most(Project::MAX_NAME_LENGTH) }
-    it { should validate_length_of(:description).is_at_most(Project::MAX_DESCRIPTION_LENGTH) }
+    let(:post) { build(:post) }
 
-    it 'validates priority is within range' do
-      project = build(:project)
+    it 'requires a comment' do
+      post.comment = nil
+      expect(post).not_to be_valid
+      expect(post.errors[:comment]).to include("can't be blank")
+    end
 
-      expect(project).to validate_inclusion_of(:priority)
-        .in_range(Project::MIN_PRIORITY..Project::MAX_PRIORITY)
-        .with_message('is not included in the list')
+    it 'limits comment length' do
+      post.comment = 'A' * (Post::MAX_COMMENT_LENGTH + 1)
+      expect(post).not_to be_valid
+      expect(post.errors[:comment]).to include('is too long (maximum is 2000 characters)')
+    end
+
+    it 'limits title length' do
+      post.title = 'A' * (Post::MAX_TITLE_LENGTH + 1)
+      expect(post).not_to be_valid
+      expect(post.errors[:title]).to include('is too long (maximum is 255 characters)')
+    end
+
+    it 'limits number of tags' do
+      post.tags = %w[tag1 tag2 tag3 tag4]
+      expect(post).not_to be_valid
+      expect(post.errors[:tags]).to include('is too long (maximum is 3 characters)')
     end
   end
 
-  describe 'defaults' do
-    it 'starts in draft state' do
-      project = build(:project)
-      expect(project.status).to eq('draft')
-    end
+  describe 'tags validation' do
+    let(:post) { build(:post) }
 
-    it 'has default priority of 0' do
-      project = build(:project)
-      expect(project.priority).to eq(0)
-    end
-  end
-
-  describe 'state transitions' do
-    let(:project) { create(:project) }
-
-    context 'when starting a project' do
-      it 'can transition from draft to in_progress' do
-        expect(project.start!).to be true
-        expect(project).to be_in_progress
+    context 'when tags are empty or nil' do
+      it 'allows nil tags' do
+        post.tags = nil
+        expect(post).to be_valid
       end
 
-      it 'can transition from not_started to in_progress' do
-        expect(project.may_start?).to be true
-        expect(project.start!).to be true
-        expect(project).to be_in_progress
-      end
-
-      it 'cannot transition from completed to in_progress' do
-        project.start!
-        project.complete!
-
-        expect(project.may_start?).to be false
-        expect { project.start! }.to raise_error(AASM::InvalidTransition)
+      it 'allows empty tags array' do
+        post.tags = []
+        expect(post).to be_valid
       end
     end
 
-    context 'when completing a project' do
-      it 'can transition from in_progress to completed' do
-        project.start!
-        expect(project.may_complete?).to be true
-        expect(project.complete!).to be true
-        expect(project).to be_completed
+    context 'when tags are present' do
+      it 'allows maximum of three tags' do
+        post.tags = %w[tag1 tag2 tag3]
+        expect(post).to be_valid
       end
 
-      it 'cannot transition from draft to completed' do
-        expect(project.may_complete?).to be false
-        expect { project.complete! }.to raise_error(AASM::InvalidTransition)
-      end
-    end
-
-    context 'when cancelling a project' do
-      it 'can be cancelled from draft state' do
-        expect(project.may_cancel?).to be true
-        expect(project.cancel!).to be true
-        expect(project).to be_cancelled
-      end
-
-      it 'can be cancelled from not_started state' do
-        project.start!
-        expect(project.may_cancel?).to be true
-        expect(project.cancel!).to be true
-        expect(project).to be_cancelled
-      end
-
-      it 'can be cancelled from in_progress state' do
-        project.start!
-        expect(project.may_cancel?).to be true
-        expect(project.cancel!).to be true
-        expect(project).to be_cancelled
-      end
-
-      it 'cannot be cancelled from completed state' do
-        project.start!
-        project.complete!
-
-        expect(project.may_cancel?).to be false
-        expect { project.cancel! }.to raise_error(AASM::InvalidTransition)
+      it 'rejects more than three tags' do
+        post.tags = %w[tag1 tag2 tag3 tag4]
+        expect(post).not_to be_valid
+        expect(post.errors[:tags]).to include('is too long (maximum is 3 characters)')
       end
     end
   end
 
-  describe 'state transition tracking' do
-    let(:project) { create(:project) }
+  describe 'title validation' do
+    let(:post) { build(:post) }
 
-    it 'creates a state transition record when state changes' do
-      expect do
-        project.start!
-      end.to change(StateTransition, :count).by(1)
-    end
-
-    it 'records the correct transition details' do
-      project.start!
-      transition = project.state_transitions.last
-
-      expect(transition.from_state).to eq('draft')
-      expect(transition.to_state).to eq('in_progress')
-      expect(transition.user).to eq(user)
-    end
-
-    describe '#timestamp_for_state' do
-      it 'returns nil for states never entered' do
-        expect(project.timestamp_for_state('completed')).to be_nil
+    context 'when title is empty or nil' do
+      it 'allows nil title' do
+        post.title = nil
+        expect(post).to be_valid
       end
 
-      it 'returns the timestamp for entered states' do
-        project.start!
-        expect(project.timestamp_for_state('in_progress')).to be_present
+      it 'allows blank title' do
+        post.title = ''
+        expect(post).to be_valid
       end
     end
 
-    describe '#state_history' do
-      it 'tracks mixed user and system changes' do
-        allow(Current).to receive(:user).and_return(user)
-        project.start!
+    context 'when title is present' do
+      it 'allows title within maximum length' do
+        post.title = 'A' * Post::MAX_TITLE_LENGTH
+        expect(post).to be_valid
+      end
 
-        allow(Current).to receive(:user).and_return(nil)
-        project.complete!
-
-        history = project.state_history
-        expect(history.count).to eq(2)
-        expect(history.first.user).to eq(user)
-        expect(history.second.user).to be_nil
+      it 'rejects title exceeding maximum length' do
+        post.title = 'A' * (Post::MAX_TITLE_LENGTH + 1)
+        expect(post).not_to be_valid
+        expect(post.errors[:title]).to include('is too long (maximum is 255 characters)')
       end
     end
   end
 
-  describe 'scopes' do
-    before do
-      create(:project, status: :draft)
-      create(:project, status: :in_progress)
-      create(:project, :high_priority, status: :in_progress)
-      create(:project, status: :completed)
-      create(:project, status: :cancelled)
+  describe 'comment validation' do
+    let(:post) { build(:post) }
+
+    context 'when comment is not present' do
+      it 'rejects nil comment' do
+        post.comment = nil
+        expect(post).not_to be_valid
+        expect(post.errors[:comment]).to include("can't be blank")
+      end
     end
 
-    it 'has working state scopes' do
-      expect(Project.draft.count).to eq(1)
-      expect(Project.in_progress.count).to eq(2)
-      expect(Project.completed.count).to eq(1)
-      expect(Project.cancelled.count).to eq(1)
+    context 'when comment is present' do
+      it 'allows comment within maximum length' do
+        post.comment = 'A' * Post::MAX_COMMENT_LENGTH
+        expect(post).to be_valid
+      end
+
+      it 'rejects comment exceeding maximum length' do
+        post.comment = 'A' * (Post::MAX_COMMENT_LENGTH + 1)
+        expect(post).not_to be_valid
+        expect(post.errors[:comment]).to include('is too long (maximum is 2000 characters)')
+      end
+    end
+  end
+
+  describe 'timestamps' do
+    let(:post) { create(:post) }
+
+    it 'sets created_at on creation' do
+      expect(post.created_at).to be_present
     end
 
-    it 'allows combining multiple query conditions' do
-      expect(Project.in_progress.where(priority: 5).count).to eq(1)
+    it 'updates updated_at when modified' do
+      original_time = post.updated_at
+      travel 1.hour do
+        post.update!(comment: 'Updated comment')
+        expect(post.updated_at).to be > original_time
+      end
     end
   end
 end
