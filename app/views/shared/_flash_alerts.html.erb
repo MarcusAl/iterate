@@ -1,0 +1,46 @@
+<% if flash[:error] || flash[:success] %>
+  <div class="max-w-2xl mx-auto space-y-2">
+    <% if flash[:error] %>
+      <div class="alert alert-error py-2 px-4" id="flash-error">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-sm"><%= flash[:error] %></span>
+        <button class="btn btn-ghost btn-xs" onclick="this.parentElement.remove()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    <% end %>
+
+    <% if flash[:success] %>
+      <div class="alert alert-success py-2 px-4" id="flash-success">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-sm"><%= flash[:success] %></span>
+        <button class="btn btn-ghost btn-xs" onclick="this.parentElement.remove()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const flashMessages = document.querySelectorAll('.alert');
+      flashMessages.forEach(function(flash) {
+        setTimeout(() => {
+          flash.style.transition = 'opacity 0.5s ease-in-out';
+          flash.style.opacity = '0';
+          setTimeout(() => {
+            flash.remove();
+          }, 500);
+        }, 2000);
+      });
+    });
+  </script>
+<% end %>

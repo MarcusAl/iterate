@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
   <head>
-    <title><%= content_for(:title) || "Iterate" %></title>
+    <title>Project Tracker</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -16,13 +16,26 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+   <body class="min-h-screen bg-base-100">
+    <div class="navbar bg-base-200">
+      <div class="navbar-start">
+        <%= link_to 'Project Tracker', root_path, class: "btn btn-ghost text-xl" %>
+      </div>
+      <div class="navbar-end">
+        <%= link_to 'New Project', new_project_path, class: "btn btn-primary", disabled: !current_user.admin? %>
+      </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8">
+      <%= render partial: 'shared/flash_alerts' %>
+      <%= yield %>
+    </main>
   </body>
 </html>

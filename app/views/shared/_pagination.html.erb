@@ -1,0 +1,21 @@
+<div class="join">
+  <% if pagy.prev %>
+    <%= link_to raw('«'), pagy_url_for(pagy, pagy.prev), class: "join-item btn" %>
+  <% else %>
+    <button class="join-item btn btn-disabled">«</button>
+  <% end %>
+  
+  <% pagy.series.each do |item| %>
+    <% if item.is_a?(Integer) %>
+      <%= link_to item, pagy_url_for(pagy, item), class: "join-item btn #{pagy.page == item ? 'btn-active' : ''}" %>
+    <% elsif item.is_a?(String) %>
+      <button class="join-item btn btn-disabled"><%= item %></button>
+    <% end %>
+  <% end %>
+  
+  <% if pagy.next %>
+    <%= link_to raw('»'), pagy_url_for(pagy, pagy.next), class: "join-item btn" %>
+  <% else %>
+    <button class="join-item btn btn-disabled">»</button>
+  <% end %>
+</div>

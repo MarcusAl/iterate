@@ -1,0 +1,43 @@
+<%= form_with(model: [project, post], class: "space-y-4") do |f| %>
+  <% if post.errors.any? %>
+    <div class="alert alert-error">
+      <ul class="list-disc list-inside">
+        <% post.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-control">
+    <%= f.label :title, class: "label" %>
+    <%= f.text_field :title, 
+        class: "input input-bordered w-full", 
+        maxlength: Post::MAX_TITLE_LENGTH,
+        placeholder: "Optional title" %>
+  </div>
+
+  <div class="form-control">
+    <%= f.label :comment, class: "label" %>
+    <%= f.text_area :comment, 
+        class: "textarea textarea-bordered h-32", 
+        maxlength: Post::MAX_COMMENT_LENGTH,
+        placeholder: "Write your post..." %>
+    <div class="label">
+      <span class="label-text-alt">Maximum <%= Post::MAX_COMMENT_LENGTH %> characters</span>
+    </div>
+  </div>
+
+  <div class="form-control">
+    <%= f.label :tags, class: "label" %>
+    <%= f.select :tags, 
+        options_for_select(['bug', 'feature', 'question', 'documentation'].map { |tag| [tag.titleize, tag] }, post.tags),
+        { include_blank: true },
+        { multiple: true, class: "select select-bordered w-full", data: { maximum: Post::MAX_TAGS } } %>
+    <div class="label">
+      <span class="label-text-alt">Maximum <%= Post::MAX_TAGS %> tags</span>
+    </div>
+  </div>
+
+  <%= f.submit class: "btn btn-primary" %>
+<% end %>
