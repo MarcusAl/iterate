@@ -6,7 +6,7 @@ Rails.application.configure do
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
-  onfig.public_file_server.enabled = true
+  config.public_file_server.enabled = true
 
   # Use a real queuing backend for Active Job
   config.active_job.queue_adapter = :async
