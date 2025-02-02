@@ -2,28 +2,19 @@
 
 # == Schema Information
 #
-# Table name: posts
+# Table name: projects
 #
-#  id         :uuid             not null, primary key
-#  comment    :text             not null
-#  tags       :string           default([]), is an Array
-#  title      :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  project_id :uuid             not null
-#  user_id    :uuid             not null
+#  id          :uuid             not null, primary key
+#  description :text
+#  name        :string           not null
+#  priority    :integer          default(0), not null
+#  status      :string           not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 # Indexes
 #
-#  index_posts_on_created_at  (created_at)
-#  index_posts_on_project_id  (project_id)
-#  index_posts_on_tags        (tags) USING gin
-#  index_posts_on_user_id     (user_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (project_id => projects.id)
-#  fk_rails_...  (user_id => users.id)
+#  index_projects_on_status  (status)
 #
 
 require 'rails_helper'
