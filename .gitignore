@@ -26,9 +26,6 @@
 .env
 .env.*
 
-# Ignore database configuration
-/config/database.yml
-
 # Ignore asset pipeline cache
 /public/assets
 
