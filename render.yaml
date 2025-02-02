@@ -19,12 +19,10 @@ services:
       - key: RAILS_MASTER_KEY
         sync: false
       - key: RAILS_ENV
-        value: development
+        value: production
       - key: RAILS_LOG_TO_STDOUT
         value: true
       - key: RAILS_SERVE_STATIC_FILES
         value: true
       - key: WEB_CONCURRENCY
         value: 2
-      - key: RAILS_SERVE_STATIC_FILES
-        value: true
