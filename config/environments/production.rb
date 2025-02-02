@@ -8,6 +8,8 @@ Rails.application.configure do
 
   config.public_file_server.enabled = true
 
+  config.serve_static_files = true
+
   # Use a real queuing backend for Active Job
   config.active_job.queue_adapter = :async
 
@@ -16,8 +18,6 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system (see config/storage.yml for options)
   config.active_storage.service = :local
-
-  config.public_file_server.enabled = true
 
   config.assets.js_compressor = :terser
 

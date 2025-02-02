@@ -3,6 +3,7 @@ databases:
     databaseName: iterate_production
     user: iterate
     plan: free
+    ipAllowList: []
 
 services:
   - type: web
